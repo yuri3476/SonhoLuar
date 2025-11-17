@@ -30,3 +30,16 @@ class VariacaoProduto(models.Model):
     @property
     def preco_final(self):
         return self.preco_override or self.produto.preco_base
+     
+class ImagemProduto(models.Model):
+    produto = models.ForeignKey(Produto, 
+                                related_name='imagens_adicionais', 
+                                on_delete=models.CASCADE)
+    imagem = models.ImageField(upload_to='produtos/adicionais/')
+
+    class Meta:
+        verbose_name = 'Imagem do Produto'
+        verbose_name_plural = 'Imagens do Produto'
+
+    def __str__(self):
+        return f"Imagem para {self.produto.nome}"

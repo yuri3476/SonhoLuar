@@ -1,16 +1,26 @@
 # catalogo/admin.py
 from django.contrib import admin
-from .models import Produto, VariacaoProduto
+from .models import Produto, VariacaoProduto, ImagemProduto # <--- IMPORTE O NOVO MODELO
 
-# Permite editar Tamanhos/Estoque DENTRO da página do Produto
+# ... (Sua classe VariacaoProdutoInline continua igual) ...
 class VariacaoProdutoInline(admin.TabularInline):
     model = VariacaoProduto
-    extra = 1 # Quantos campos extras mostrar
-    autocomplete_fields = [] # Pode ser útil se tiver muitos tamanhos
+    extra = 1
+    autocomplete_fields = []
+
+# ADICIONE ESTA NOVA CLASSE
+class ImagemProdutoInline(admin.TabularInline):
+    model = ImagemProduto
+    extra = 1 # Mostra 1 campo extra para adicionar nova imagem
 
 @admin.register(Produto)
 class ProdutoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'preco_base', 'disponivel')
     list_filter = ('disponivel',)
     search_fields = ('nome', 'descricao')
-    inlines = [VariacaoProdutoInline] # ADICIONA O INLINE ACIMA
+    
+    # ADICIONE A NOVA CLASSE INLINE AQUI
+    inlines = [
+        VariacaoProdutoInline,
+        ImagemProdutoInline, # <--- ADICIONE ESTA LINHA
+    ]
