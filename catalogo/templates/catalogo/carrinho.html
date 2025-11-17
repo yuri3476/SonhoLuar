@@ -21,6 +21,8 @@
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço Unit.</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qtd</th>
                             <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
+                            
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ação</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -31,27 +33,32 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">R$ {{ item.preco_final|floatformat:2 }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ item.quantidade }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-right text-accent-blue">R$ {{ item.subtotal|floatformat:2 }}</td>
+                                
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
+                                    <a href="{% url 'remover_do_carrinho' item.variacao_id %}" 
+                                       class="text-red-600 hover:text-red-900">
+                                       Remover
+                                    </a>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                     <tfoot>
                         <tr class="bg-gray-50">
-                            <td colspan="4" class="px-6 py-4 whitespace-nowrap text-right text-base font-bold text-gray-800">Total do Pedido:</td>
+                            <td colspan="5" class="px-6 py-4 whitespace-nowrap text-right text-base font-bold text-gray-800">Total do Pedido:</td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-xl font-extrabold text-accent-blue">R$ {{ total_pedido|floatformat:2 }}</td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
 
-</div> <div class="mt-8 flex flex-col-reverse sm:flex-row justify-center items-center gap-4">
-                
+            <div class="mt-8 flex flex-col-reverse sm:flex-row justify-center items-center gap-4">
                 <a href="{% url 'lista_produtos' %}" 
                    class="inline-flex items-center justify-center px-8 py-4 w-full sm:w-auto border border-accent-blue text-xl font-bold rounded-full shadow-lg 
                           text-accent-blue bg-white hover:bg-gray-100 focus:outline-none 
                           transition-colors duration-300">
                     Continuar Comprando
                 </a>
-                
                 <a href="{% url 'checkout_whatsapp' %}" 
                    class="inline-flex items-center justify-center px-8 py-4 w-full sm:w-auto border border-transparent text-xl font-bold rounded-full shadow-lg 
                           text-white bg-green-500 hover:bg-green-600 focus:outline-none 
@@ -60,4 +67,6 @@
                 </a>
             </div>
             
-        </div> {% endif %} {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}
