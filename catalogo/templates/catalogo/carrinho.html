@@ -1,0 +1,56 @@
+{% extends 'catalogo/base.html' %}
+
+{% block content %}
+    <h2 class="text-4xl font-light text-center mb-10 text-primary-text">Seu Carrinho</h2>
+
+    {% if not itens_carrinho %}
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+            <p class="text-gray-600 text-lg mb-4">Seu carrinho está vazio. Que tal explorar nossos <a href="{% url 'lista_produtos' %}" class="text-accent-blue hover:underline">produtos</a>?</p>
+            <a href="{% url 'lista_produtos' %}" class="bg-accent-blue text-white px-6 py-3 rounded-lg hover:bg-primary-text transition-colors duration-200">
+                Ver Produtos
+            </a>
+        </div>
+    {% else %}
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tamanho</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço Unit.</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qtd</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for item in itens_carrinho %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.produto_nome }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ item.tamanho }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">R$ {{ item.preco_final|floatformat:2 }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ item.quantidade }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-right text-accent-blue">R$ {{ item.subtotal|floatformat:2 }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-gray-50">
+                            <td colspan="4" class="px-6 py-4 whitespace-nowrap text-right text-base font-bold text-gray-800">Total do Pedido:</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-xl font-extrabold text-accent-blue">R$ {{ total_pedido|floatformat:2 }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="mt-8 text-center">
+                <a href="{% url 'checkout_whatsapp' %}" 
+                   class="inline-flex items-center px-8 py-4 border border-transparent text-xl font-bold rounded-full shadow-lg 
+                          text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 
+                          transition-transform transform hover:scale-105 duration-300">
+                    
+                    Finalizar Pedido no WhatsApp
+                </a>
+            </div>
+        </div>
+    {% endif %} {% endblock %}

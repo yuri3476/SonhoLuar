@@ -1,0 +1,25 @@
+{% extends 'catalogo/base.html' %}
+
+{% block content %}
+    <h2 class="text-4xl font-light text-center mb-12 text-primary-text">Nossas Coleções</h2>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        {% for produto in produtos %}
+            <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                <a href="{% url 'detalhe_produto' produto.pk %}">
+                    {% if produto.imagem_principal %}
+                        <img src="{{ produto.imagem_principal.url }}" alt="{{ produto.nome }}" class="w-full h-64 object-cover">
+                    {% else %}
+                        <div class="w-full h-64 bg-gray-200 flex items-center justify-center text-gray-500">Sem Imagem</div>
+                    {% endif %}
+                    <div class="p-4 text-center">
+                        <h3 class="text-xl font-semibold text-primary-text mb-2">{{ produto.nome }}</h3>
+                        <p class="text-accent-blue font-bold text-lg">R$ {{ produto.preco_base|floatformat:2 }}</p>
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+            <p class="col-span-full text-center text-gray-600 text-lg">Nenhum produto encontrado. Que tal adicionar alguns no <a href="{% url 'admin:index' %}" class="text-blue-600 hover:underline">painel de administração</a>?</p>
+        {% endfor %}
+    </div>
+{% endblock %}

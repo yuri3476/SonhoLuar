@@ -1,0 +1,46 @@
+{% extends 'catalogo/base.html' %}
+
+{% block content %}
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col md:flex-row items-start gap-8">
+        <div class="md:w-1/2">
+            {% if produto.imagem_principal %}
+                <img src="{{ produto.imagem_principal.url }}" alt="{{ produto.nome }}" class="w-full h-auto rounded-lg shadow-sm">
+            {% else %}
+                <div class="w-full h-96 bg-gray-200 flex items-center justify-center text-gray-500 rounded-lg">Sem Imagem</div>
+            {% endif %}
+        </div>
+        
+        <div class="md:w-1/2">
+            <h2 class="text-4xl font-bold text-primary-text mb-4">{{ produto.nome }}</h2>
+            <p class="text-gray-700 leading-relaxed mb-6">{{ produto.descricao }}</p>
+            
+            <h3 class="text-2xl font-semibold text-accent-blue mb-4">Selecione o Tamanho:</h3>
+            
+            <div class="space-y-4">
+                {% for variacao in produto.variacoes.all %}
+                    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
+                        <div>
+                            <strong class="text-lg text-primary-text">Tamanho: {{ variacao.tamanho }}</strong> - 
+                            <span class="text-xl font-bold text-accent-blue">R$ {{ variacao.preco_final|floatformat:2 }}</span>
+                        </div>
+                        
+                        {% if variacao.quantidade_estoque > 0 %}
+                            <span class="text-green-600 font-medium">({{ variacao.quantidade_estoque }} em estoque)</span>
+                            <a href="{% url 'adicionar_ao_carrinho' variacao.id %}" 
+                               class="bg-accent-blue text-white px-6 py-2 rounded-lg hover:bg-primary-text transition-colors duration-200">
+                                Adicionar ao Carrinho
+                            </a>
+                        {% else %}
+                            <span class="text-red-500 font-medium">(Esgotado)</span>
+                            <button disabled class="bg-gray-400 text-white px-6 py-2 rounded-lg cursor-not-allowed opacity-70">
+                                Esgotado
+                            </button>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <p class="text-gray-600">Este produto não possui variações de tamanho cadastradas.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

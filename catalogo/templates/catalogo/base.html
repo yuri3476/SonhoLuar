@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonhos de Luar - Pijamas e Moda Íntima</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Cores personalizadas do seu logo */
+        :root {
+            --color-primary-text: #375F6F; /* Azul escuro do texto "Sonhos de luar" */
+            --color-secondary-bg: #F8F3ED; /* Bege claro de fundo */
+            --color-accent-blue: #4D7E8F; /* Azul da lua */
+        }
+        .text-primary-text { color: var(--color-primary-text); }
+        .bg-secondary-bg { background-color: var(--color-secondary-bg); }
+        .text-accent-blue { color: var(--color-accent-blue); }
+        .bg-accent-blue { background-color: var(--color-accent-blue); }
+        
+        /* Fontes (opcional: para usar a fonte exata da logo, você precisaria importar e configurar) */
+        /* Por enquanto, vamos usar uma fonte sans-serif agradável */
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+    </style>
+</head>
+<body class="bg-secondary-bg text-primary-text min-h-screen flex flex-col">
+    
+    <header class="bg-white shadow-sm py-4">
+        <nav class="container mx-auto grid grid-cols-3 items-center px-4">
+            
+            <div>
+                </div>
+
+            <a href="{% url 'lista_produtos' %}" class="flex items-center space-x-2 justify-center">
+                <img src="{% static 'sonhos_de_luar_logo.png' %}" alt="Sonhos de Luar Logo" class="h-20 w-auto"> 
+                <span class="text-3xl font-semibold text-primary-text">Sonhos de luar</span>
+            </a>
+
+            <div class="flex justify-end">
+                <a href="{% url 'ver_carrinho' %}" class="relative text-accent-blue hover:text-primary-text transition-colors duration-200">
+                    <svg class="w-6 h-6 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                        {% if request.session.carrinho %}{{ request.session.carrinho|length }}{% else %}0{% endif %}
+                    </span>
+                    <span class="ml-1 hidden sm:inline">Carrinho</span>
+                </a>
+            </div>
+
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto py-8 px-4">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="bg-secondary-bg text-primary-text py-6 mt-8 border-t border-gray-300">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2025 Sonhos de Luar. Todos os direitos reservados.</p>
+            <p class="text-sm mt-2">Feito com 💖 por Yuri Rezende</p>
+        </div>
+    </footer>
+</body>
+</html>
