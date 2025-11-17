@@ -43,14 +43,21 @@
                 </table>
             </div>
 
-            <div class="mt-8 text-center">
+</div> <div class="mt-8 flex flex-col-reverse sm:flex-row justify-center items-center gap-4">
+                
+                <a href="{% url 'lista_produtos' %}" 
+                   class="inline-flex items-center justify-center px-8 py-4 w-full sm:w-auto border border-accent-blue text-xl font-bold rounded-full shadow-lg 
+                          text-accent-blue bg-white hover:bg-gray-100 focus:outline-none 
+                          transition-colors duration-300">
+                    Continuar Comprando
+                </a>
+                
                 <a href="{% url 'checkout_whatsapp' %}" 
-                   class="inline-flex items-center px-8 py-4 border border-transparent text-xl font-bold rounded-full shadow-lg 
-                          text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 
+                   class="inline-flex items-center justify-center px-8 py-4 w-full sm:w-auto border border-transparent text-xl font-bold rounded-full shadow-lg 
+                          text-white bg-green-500 hover:bg-green-600 focus:outline-none 
                           transition-transform transform hover:scale-105 duration-300">
-                    
                     Finalizar Pedido no WhatsApp
                 </a>
             </div>
-        </div>
-    {% endif %} {% endblock %}
+            
+        </div> {% endif %} {% endblock %}

@@ -28,7 +28,23 @@
     </style>
 </head>
 <body class="bg-secondary-bg text-primary-text min-h-screen flex flex-col">
-    
+    {% if messages %}
+    <div id="toast-container" class="fixed top-24 right-4 z-50 space-y-2">
+        {% for message in messages %}
+        <div id="toast-{{ forloop.counter }}" 
+             class="max-w-xs bg-green-500 text-white text-sm font-semibold rounded-lg shadow-lg p-4 transition-opacity duration-500" 
+             role="alert">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                <span>{{ message }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <header class="bg-white shadow-sm py-4">
+        </header>
+
     <header class="bg-white shadow-sm py-4">
         <nav class="container mx-auto grid grid-cols-3 items-center px-4">
             
@@ -67,5 +83,33 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     {% block scripts %}
     {% endblock %}
+
+    <script>
+    // Pega o container do toast
+    const toastContainer = document.getElementById('toast-container');
+    
+    if (toastContainer) {
+        // Pega todos os toasts individuais
+        const toasts = toastContainer.querySelectorAll('[id^="toast-"]');
+        
+        toasts.forEach((toast, index) => {
+            // Faz o toast desaparecer depois de 3 segundos (3000ms)
+            setTimeout(() => {
+                // Adiciona classes para um "fade-out" suave
+                toast.classList.add('opacity-0');
+                
+                // Remove o elemento do DOM depois que a transição terminar (500ms)
+                setTimeout(() => {
+                    toast.remove();
+                    // Se não houver mais toasts, remove o container
+                    if (toastContainer.children.length === 0) {
+                        toastContainer.remove();
+                    }
+                }, 500); // Deve ser igual à duração da transição
+                
+            }, 3000 + (index * 500)); // 3 segundos, com um pequeno atraso se houver várias mensagens
+        });
+    }
+    </script>
 </body>
 </html>

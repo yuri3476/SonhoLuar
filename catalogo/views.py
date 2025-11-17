@@ -3,6 +3,7 @@ import urllib.parse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from .models import Produto, VariacaoProduto
+from django.contrib import messages
 
 def lista_produtos(request):
     """Mostra a página inicial com todos os produtos disponíveis."""
@@ -24,28 +25,28 @@ def adicionar_ao_carrinho(request, variacao_id):
     """Adiciona um item ao carrinho na sessão."""
     variacao = get_object_or_404(VariacaoProduto, id=variacao_id)
     
-    # Pega o carrinho da sessão ou cria um dicionário vazio
+    # ... (toda a sua lógica de adicionar ao carrinho continua igual) ...
     carrinho = request.session.get('carrinho', {})
-    
-    # Converte o ID para string (JSON, onde as chaves são strings)
     str_variacao_id = str(variacao_id)
-    
-    # Verifica se o item já está no carrinho
     if str_variacao_id in carrinho:
-        # TODO: Adicionar lógica para checar estoque antes de adicionar mais
         carrinho[str_variacao_id]['quantidade'] += 1
     else:
-        # Adiciona o item pela primeira vez
         if variacao.quantidade_estoque > 0:
             carrinho[str_variacao_id] = {
                 'quantidade': 1,
                 'produto_nome': variacao.produto.nome,
                 'tamanho': variacao.tamanho,
-                'preco_final': float(variacao.preco_final), # Converte Decimal para float
+                'preco_final': float(variacao.preco_final),
             }
-
     request.session['carrinho'] = carrinho
-    return redirect('ver_carrinho')
+    
+    # =============================================================
+    # 2. ADICIONE A MENSAGEM DE SUCESSO AQUI
+    # =============================================================
+    messages.success(request, f"{variacao.produto.nome} (Tam: {variacao.tamanho}) foi adicionado ao carrinho!")
+
+    # O redirect continua o mesmo, voltando para a página do produto
+    return redirect('detalhe_produto', pk=variacao.produto.pk)
 
 def ver_carrinho(request):
     """Mostra o carrinho de compras."""
