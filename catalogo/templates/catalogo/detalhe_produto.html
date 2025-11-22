@@ -1,91 +1,269 @@
 {% extends 'catalogo/base.html' %}
 
 {% block content %}
-    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col md:flex-row items-start gap-8">
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col md:flex-row items-start gap-8 mb-20">
         
         <div class="md:w-1/2 w-full">
-            <div class="swiper mySwiper rounded-lg shadow-sm" 
-                 style="--swiper-navigation-color: #375F6F; --swiper-pagination-color: #375F6F;">
-                
+            <div class="swiper mySwiper rounded-lg shadow-sm" style="--swiper-navigation-color: #375F6F; --swiper-pagination-color: #375F6F;">
                 <div class="swiper-wrapper">
                     <div class="swiper-slide">
-                        <img src="{{ produto.imagem_principal.url }}" 
-                             alt="{{ produto.nome }}" 
-                             class="w-full h-auto object-cover aspect-square">
+                        <img src="{{ produto.imagem_principal.url }}" alt="{{ produto.nome }}" class="w-full h-auto object-cover object-top aspect-[3/4]">
                     </div>
-
+                    
                     {% for img_adicional in produto.imagens_adicionais.all %}
                         <div class="swiper-slide">
-                            <img src="{{ img_adicional.imagem.url }}" 
-                                 alt="Imagem adicional de {{ produto.nome }}" 
-                                 class="w-full h-auto object-cover aspect-square">
+                            <img src="{{ img_adicional.imagem.url }}" alt="Imagem adicional" class="w-full h-auto object-cover object-top aspect-[3/4]">
                         </div>
                     {% endfor %}
                 </div>
-                
                 <div class="swiper-button-next"></div>
                 <div class="swiper-button-prev"></div>
-                
                 <div class="swiper-pagination"></div>
             </div>
         </div>
+        
         <div class="md:w-1/2 w-full">
-            <h2 class="text-4xl font-bold text-primary-text mb-4">{{ produto.nome }}</h2>
-            <p class="text-gray-700 leading-relaxed mb-6">{{ produto.descricao }}</p>
+            <h2 class="text-3xl font-bold text-primary-text mb-2">{{ produto.nome }}</h2>
             
-            <h3 class="text-2xl font-semibold text-accent-blue mb-4">Selecione o Tamanho:</h3>
-            
-            <div class="space-y-4">
-                {% for variacao in produto.variacoes.all %}
-                    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg shadow-sm">
-                        <div>
-                            <strong class="text-lg text-primary-text">Tamanho: {{ variacao.tamanho }}</strong> - 
-                            <span class="text-xl font-bold text-accent-blue">R$ {{ variacao.preco_final|floatformat:2 }}</span>
-                        </div>
-                        
-                        {% if variacao.quantidade_estoque > 0 %}
-                            <span class="text-green-600 font-medium">({{ variacao.quantidade_estoque }} em estoque)</span>
-                            <a href="{% url 'adicionar_ao_carrinho' variacao.id %}" 
-                               class="bg-accent-blue text-white px-6 py-2 rounded-lg hover:bg-primary-text transition-colors duration-200">
-                                Adicionar ao Carrinho
-                            </a>
-                        {% else %}
-                            <span class="text-red-500 font-medium">(Esgotado)</span>
-                            <button disabled class="bg-gray-400 text-white px-6 py-2 rounded-lg cursor-not-allowed opacity-70">
-                                Esgotado
-                            </button>
-                        {% endif %}
-                    </div>
-                {% empty %}
-                    <p class="text-gray-600">Este produto não possui variações de tamanho cadastradas.</p>
-                {% endfor %}
+            <div class="mb-4 flex items-baseline gap-2">
+                {% if produto.preco_antigo %}
+                    <span class="text-gray-400 line-through text-lg">R$ {{ produto.preco_antigo|floatformat:2 }}</span>
+                {% endif %}
+                <span class="text-3xl font-bold text-accent-blue" id="preco-display">R$ {{ produto.preco_base|floatformat:2 }}</span>
             </div>
+
+            <p class="text-gray-600 leading-relaxed mb-6">{{ produto.descricao }}</p>
+            
+            <form id="form-compra" method="POST" action="">
+                {% csrf_token %}
+                
+                <div class="space-y-6">
+                    
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900 mb-2">Tamanho: <span id="tamanho-selecionado" class="font-normal text-gray-500"></span></h3>
+                        <div class="flex flex-wrap gap-2" id="container-tamanhos"></div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900 mb-2">Cor: <span id="cor-selecionada" class="font-normal text-gray-500"></span></h3>
+                        <div class="flex flex-wrap gap-3" id="container-cores"></div>
+                    </div>
+
+                    <div id="bloco-qtd" class="hidden p-4 bg-gray-50 rounded-lg border border-gray-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700">Quantidade:</span>
+                            <span id="texto-estoque" class="text-xs font-bold text-green-600"></span>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="number" name="quantidade" id="input-qtd" value="1" min="1" 
+                                   class="w-20 text-center border border-gray-300 rounded-md py-2 focus:ring-accent-blue focus:border-accent-blue">
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="check-obs" class="form-checkbox h-4 w-4 text-accent-blue rounded border-gray-300 focus:ring-accent-blue">
+                            <span class="ml-2 text-sm text-gray-600">Incluir observação/detalhe (opcional)</span>
+                        </label>
+                        <div id="box-obs" class="hidden mt-2">
+                            <textarea name="observacao" rows="2" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-accent-blue focus:border-accent-blue" placeholder="Ex: Embrulhar para presente, etc..."></textarea>
+                        </div>
+                    </div>
+
+                    <p id="msg-erro" class="text-red-500 text-sm hidden">Selecione tamanho e cor.</p>
+
+                    <button type="submit" id="btn-adicionar" disabled
+                       class="w-full bg-gray-300 text-gray-500 font-bold py-4 rounded-xl shadow-lg transition-all duration-300 cursor-not-allowed">
+                        Selecione as opções
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+{% endblock %}
 
-{% endblock %} {% block scripts %}
+{% block scripts %}
 <script>
-  var swiper = new Swiper(".mySwiper", {
-    // Adiciona "loop" para o carrossel ser infinito
-    loop: true,
-    
-    // --- Auto-play (passar sozinho) ---
-    autoplay: {
-      delay: 3000, // 3000ms = 3 segundos
-      disableOnInteraction: false, // Continua mesmo depois do usuário mexer
-    },
-    
-    // --- Setas de Navegação ---
-    navigation: {
-      nextEl: ".swiper-button-next",
-      prevEl: ".swiper-button-prev",
-    },
-    
-    // --- Paginação (as bolinhas) ---
-    pagination: {
-      el: ".swiper-pagination",
-      clickable: true, // Permite clicar nas bolinhas
-    },
-  });
+    // 1. SWIPER
+    var swiper = new Swiper(".mySwiper", {
+        loop: true,
+        autoplay: { delay: 3000, disableOnInteraction: false },
+        navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
+        pagination: { el: ".swiper-pagination", clickable: true },
+    });
+
+    // 2. DADOS (Incluindo o novo codigo_hex)
+    const variacoes = [
+        {% for v in produto.variacoes.all %}
+        {
+            id: "{{ v.id }}",
+            tamanho: "{{ v.tamanho }}",
+            cor: "{{ v.cor }}",
+            hex: "{{ v.codigo_hex }}", // <--- CAMPO NOVO
+            preco: "{{ v.preco_final|floatformat:'2u' }}", 
+            estoque: {{ v.quantidade_estoque }}
+        },
+        {% endfor %}
+    ];
+
+    let tamanhoSelecionado = null;
+    let corSelecionada = null;
+
+    const tamanhosUnicos = [...new Set(variacoes.map(v => v.tamanho))];
+    // Agora coresUnicas é um objeto para guardar o HEX também
+    const coresObj = {};
+    variacoes.forEach(v => {
+        if (!coresObj[v.cor]) coresObj[v.cor] = v.hex;
+    });
+
+    const containerTamanhos = document.getElementById('container-tamanhos');
+    const containerCores = document.getElementById('container-cores');
+    const btnAdicionar = document.getElementById('btn-adicionar');
+    const precoDisplay = document.getElementById('preco-display');
+    const blocoQtd = document.getElementById('bloco-qtd');
+    const textoEstoque = document.getElementById('texto-estoque');
+    const inputQtd = document.getElementById('input-qtd');
+    const formCompra = document.getElementById('form-compra');
+
+    // Toggle Observação
+    document.getElementById('check-obs').addEventListener('change', function() {
+        document.getElementById('box-obs').classList.toggle('hidden', !this.checked);
+    });
+
+    // Renderizar Tamanhos
+    if (tamanhosUnicos.length > 0) {
+        tamanhosUnicos.forEach(tam => {
+            const btn = document.createElement('button');
+            btn.type = "button"; // Importante para não submeter o form
+            btn.className = `border border-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:border-accent-blue focus:outline-none transition-colors`;
+            btn.innerText = tam;
+            btn.dataset.valor = tam; 
+            btn.onclick = () => selecionarTamanho(tam, btn);
+            containerTamanhos.appendChild(btn);
+        });
+    }
+
+    // Renderizar Cores (BOLINHAS)
+    const chavesCores = Object.keys(coresObj);
+    if (chavesCores.length > 0) {
+        chavesCores.forEach(corNome => {
+            const hex = coresObj[corNome];
+            
+            const btn = document.createElement('button');
+            btn.type = "button";
+            // Estilo de bolinha
+            btn.className = `w-10 h-10 rounded-full border-2 border-gray-200 shadow-sm focus:outline-none transition-transform hover:scale-110 flex items-center justify-center`;
+            btn.style.backgroundColor = hex;
+            btn.title = corNome; // Tooltip com nome da cor
+            btn.dataset.valor = corNome;
+            
+            // Ícone de check (invisível inicialmente)
+            btn.innerHTML = `<svg class="w-5 h-5 text-white opacity-0 transition-opacity check-icon drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+
+            btn.onclick = () => selecionarCor(corNome, btn);
+            containerCores.appendChild(btn);
+        });
+    }
+
+    function selecionarTamanho(tam, btnClicado) {
+        tamanhoSelecionado = tam;
+        document.getElementById('tamanho-selecionado').innerText = tam;
+        
+        // Visual Tamanhos
+        Array.from(containerTamanhos.children).forEach(b => {
+            b.classList.remove('bg-accent-blue', 'text-white', 'border-accent-blue');
+            b.classList.add('text-gray-700', 'border-gray-300');
+        });
+        btnClicado.classList.remove('text-gray-700', 'border-gray-300');
+        btnClicado.classList.add('bg-accent-blue', 'text-white', 'border-accent-blue');
+
+        atualizarEstadoCores(tam);
+        verificarSelecao();
+    }
+
+    function selecionarCor(cor, btnClicado) {
+        if (btnClicado.disabled) return;
+
+        corSelecionada = cor;
+        document.getElementById('cor-selecionada').innerText = cor;
+
+        // Visual Cores
+        Array.from(containerCores.children).forEach(b => {
+            b.classList.remove('ring-2', 'ring-offset-2', 'ring-accent-blue', 'scale-110');
+            b.querySelector('.check-icon').classList.add('opacity-0');
+        });
+        
+        // Efeito de seleção na bolinha
+        btnClicado.classList.add('ring-2', 'ring-offset-2', 'ring-accent-blue', 'scale-110');
+        btnClicado.querySelector('.check-icon').classList.remove('opacity-0');
+
+        verificarSelecao();
+    }
+
+    function atualizarEstadoCores(tamanhoEscolhido) {
+        const botoesCor = Array.from(containerCores.children);
+        botoesCor.forEach(btn => {
+            const corDoBotao = btn.dataset.valor;
+            const disponivel = variacoes.some(v => v.tamanho === tamanhoEscolhido && v.cor === corDoBotao && v.estoque > 0);
+
+            if (disponivel) {
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.style.cursor = "pointer";
+                // Borda cinza suave para cores claras como branco
+                btn.classList.add('border-gray-200');
+            } else {
+                btn.disabled = true;
+                btn.style.opacity = "0.2"; // Fica bem apagado
+                btn.style.cursor = "not-allowed";
+                if (corSelecionada === corDoBotao) {
+                    corSelecionada = null;
+                    document.getElementById('cor-selecionada').innerText = "";
+                    btn.classList.remove('ring-2', 'ring-offset-2', 'ring-accent-blue');
+                }
+            }
+        });
+    }
+
+    function verificarSelecao() {
+        const msgErro = document.getElementById('msg-erro');
+        
+        if (tamanhoSelecionado && corSelecionada) {
+            const variacaoEncontrada = variacoes.find(v => v.tamanho === tamanhoSelecionado && v.cor === corSelecionada);
+
+            if (variacaoEncontrada && variacaoEncontrada.estoque > 0) {
+                // Produto Disponível
+                btnAdicionar.disabled = false;
+                btnAdicionar.innerText = "Adicionar ao Carrinho";
+                btnAdicionar.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                btnAdicionar.classList.add('bg-green-500', 'text-white', 'hover:bg-green-600', 'cursor-pointer');
+                
+                precoDisplay.innerText = "R$ " + variacaoEncontrada.preco.replace('.', ',');
+                
+                // Configura o Action do Form
+                formCompra.action = `/add/${variacaoEncontrada.id}/`;
+
+                // Mostra Estoque e Configura Input
+                blocoQtd.classList.remove('hidden');
+                textoEstoque.innerText = `Estoque: ${variacaoEncontrada.estoque} un.`;
+                inputQtd.max = variacaoEncontrada.estoque;
+                inputQtd.value = 1;
+
+                msgErro.classList.add('hidden');
+            } else {
+                desabilitarBotao("Esgotado");
+            }
+        } else {
+            blocoQtd.classList.add('hidden');
+        }
+    }
+
+    function desabilitarBotao(texto) {
+        btnAdicionar.disabled = true;
+        btnAdicionar.innerText = texto;
+        btnAdicionar.classList.remove('bg-green-500', 'text-white', 'hover:bg-green-600', 'cursor-pointer');
+        btnAdicionar.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+        blocoQtd.classList.add('hidden');
+    }
 </script>
 {% endblock %}
